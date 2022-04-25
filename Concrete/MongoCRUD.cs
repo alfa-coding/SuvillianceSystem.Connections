@@ -28,13 +28,13 @@ namespace SuvillianceSystem.Connections.Concrete
                 .FirstOrDefault())?.CollectionName;
         }
 
-        public Task Delete(string id)
+        public async Task Delete(string id)
         {
             var filter = Builders<T>.Filter.Eq(doc => doc.Id, id);
 
             try
             {
-                collection.FindOneAndDelete(filter);
+                await collection.FindOneAndDeleteAsync(filter);
             }
             catch (Exception)
             {
@@ -42,23 +42,26 @@ namespace SuvillianceSystem.Connections.Concrete
             }
         }
 
-        public Task<IQueryable<T>> GetAll()
+        public async Task<IEnumerable<T>> GetAll()
         {
-            return collection.Find(new BsonDocument()).ToEnumerable();
+            var result = await collection.FindAsync(new BsonDocument());
+            return result.ToEnumerable();
         }
 
-        public Task<T> GetById(string id)
+        public async Task<T> GetById(string id)
         {
             var filter = Builders<T>.Filter.Eq(doc => doc.Id, id);
-            return collection.Find(filter).SingleOrDefault();
+            var filtered = await collection.FindAsync(filter);
+            var result = filtered.SingleOrDefault();
+            return result;
         }
 
-        public Task Insert(T element)
+        public async Task Insert(T element)
         {
             try
             {
-                element.Id = element.Id == null? Guid.NewGuid().ToString():element.Id;
-                collection.InsertOne(element);
+                element.Id = element.Id == null ? Guid.NewGuid().ToString() : element.Id;
+                await collection.InsertOneAsync(element);
             }
             catch (Exception)
             {
@@ -66,12 +69,12 @@ namespace SuvillianceSystem.Connections.Concrete
             }
         }
 
-        public Task Update(string id, T replacement)
+        public async Task Update(string id, T replacement)
         {
             var filter = Builders<T>.Filter.Eq(doc => doc.Id, replacement.Id);
             try
             {
-                collection.FindOneAndReplace(filter, replacement);
+                await collection.FindOneAndReplaceAsync(filter, replacement);
 
             }
             catch (Exception)

@@ -8,7 +8,7 @@ namespace SuvillianceSystem.Connections.Infrastructure
     {
         Task Insert(T element);
 
-        Task<IQueryable<T>> GetAll();
+        Task<IEnumerable<T>> GetAll();
 
         Task<T> GetById(string id);
 
